@@ -1,4 +1,6 @@
 QT       += core gui
+QT       += testlib
+
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,11 +12,13 @@ CONFIG += c++11
 
 SOURCES += \
     acl_base.cpp \
+    acl_base_complex.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     acl_base.h \
+    acl_base_complex.h \
     mainwindow.h
 
 FORMS += \

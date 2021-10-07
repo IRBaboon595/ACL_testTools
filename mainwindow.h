@@ -15,8 +15,11 @@
 #include <QComboBox>
 #include <QSizePolicy>
 #include "acl_base.h"
+#include "acl_base_complex.h"
 #include <QDebug>
 #include <QList>
+#include <QtTest>
+#include <QThread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -93,6 +96,9 @@ private:
         READ_WRITE,
         BLANK
     }access_level;
+
+    QThread                 thread;
+    acl_base_complex        *complex_base;
 
 
 };

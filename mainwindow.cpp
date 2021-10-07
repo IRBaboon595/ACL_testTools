@@ -1,13 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QObject>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    data_base = new acl_base[65535];                                        //array of acl class objects
+    //data_base = new acl_base[65535];                                        //array of acl class objects
+    complex_base = new acl_base_complex(65535);
     counter = 0;
 
     /*********************************** User Interface Constructing ***************************************/
@@ -69,23 +70,29 @@ MainWindow::MainWindow(QWidget *parent)
     show_user_combo_comboBox->addItems(*registered_users_list);
     show_process_combo_comboBox->addItems(*registered_process_list);
 
-    for (int i = 0; i < counter; i++) {
-        data_base[i].setUserName(registered_users_list->at(i));                                         //Default Users registering
-        data_base[i].addProcessList(*registered_process_list);                                          //Default available processes registering
-        for (int l = 0; l < registered_process_list->size(); l++) {                                     //Access level registering for each process
-            data_base[i].manage_process(registered_process_list->at(l), access_level_list->at(i));
-        }
-    }
-
+    connect(&thread, SIGNAL(started()), complex_base, SLOT(run()));
+    connect(complex_base, SIGNAL(finished()), &thread, SLOT(terminate()));
     connect(timer_login, SIGNAL(timeout()), this, SLOT(login_timeout()));                               //For wrong sign in pushbutton label timeout
     connect(add_user_pushButton, SIGNAL(clicked()), this, SLOT(add_user_toDataBase()));                 //Add user push button
     connect(edit_type_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(edit_type_clicked()));     //Edit or delete slot
     connect(edit_user_pushButton, SIGNAL(clicked()), this, SLOT(edit_dataBase_entry()));
     connect(show_user_pushButton, SIGNAL(clicked()), this, SLOT(show_access_level()));                  //Show access level
+    complex_base->moveToThread(&thread);
+    thread.start();
+
+
+    for (int i = 0; i < counter; i++) {
+        complex_base->data_base[i].setUserName(registered_users_list->at(i));                                         //Default Users registering
+        complex_base->data_base[i].addProcessList(*registered_process_list);                                          //Default available processes registering
+        for (int l = 0; l < registered_process_list->size(); l++) {                                     //Access level registering for each process
+            complex_base->data_base[i].manage_process(registered_process_list->at(l), access_level_list->at(i));
+        }
+    }
 }
 
 MainWindow::~MainWindow()
 {
+    thread.terminate();
     delete ui;
 }
 
@@ -145,7 +152,6 @@ void MainWindow::on_singIn_pushButton_clicked()
         ui->singIn_pushButton->~QPushButton();
 
         ui->centralwidget->setLayout(main_layout);
-
     }
     else
     {
@@ -167,7 +173,9 @@ void MainWindow::add_user_toDataBase()
     edit_user_comboBox->addItem(add_user_name_lineEdit->text());                                    //Add new entries to comboboxes to make them accessible
     show_user_combo_comboBox->addItem(add_user_name_lineEdit->text());
 
-    data_base[counter] = temp_base;
+    complex_base->data_base[counter] = temp_base;
+
+    //data_base[counter] = temp_base;
 
     //qDebug() << counter;
 
@@ -192,7 +200,7 @@ void MainWindow::edit_dataBase_entry()
 {
     if(edit_type_comboBox->currentText() == "Edit")                                     //access levels of chosen user and process is edited
     {
-        data_base[registered_users_list->indexOf(edit_user_comboBox->currentText())].manage_process(edit_process_comboBox->currentText(), edit_access_level_comboBox->currentText());
+        complex_base->data_base[registered_users_list->indexOf(edit_user_comboBox->currentText())].manage_process(edit_process_comboBox->currentText(), edit_access_level_comboBox->currentText());
     }
     else if(edit_type_comboBox->currentText() == "Delete")                              //chosen user is deleted from lists, arrays and comboboxes, the name is logged in a delete list
     {
@@ -205,8 +213,8 @@ void MainWindow::edit_dataBase_entry()
         show_user_combo_comboBox->removeItem(index);
 
         for (int i = index; i < (counter); i++) {
-            temp = &(data_base[i + 1]);
-            data_base[i] = temp;
+            temp = &(complex_base->data_base[i + 1]);
+            complex_base->data_base[i] = temp;
         }
         counter--;
     }
@@ -216,7 +224,7 @@ void MainWindow::show_access_level()
 {
     //show_access_level_combo_label->setText(data_base[show_user_combo_comboBox->currentIndex()].getAccessLevel(show_process_combo_comboBox->currentText()));
 
-    show_access_level_combo_label->setText(data_base[registered_users_list->indexOf(show_user_combo_comboBox->currentText())].getAccessLevel(show_process_combo_comboBox->currentText()));
+    show_access_level_combo_label->setText(complex_base->data_base[registered_users_list->indexOf(show_user_combo_comboBox->currentText())].getAccessLevel(show_process_combo_comboBox->currentText()));
 }
 
 void MainWindow::login_timeout()
