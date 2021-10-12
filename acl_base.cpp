@@ -44,6 +44,10 @@ QString acl_base::getUserName()
 void acl_base::addProcessList(QStringList process_list)
 {
     processes = process_list;
+    for(int i = 0; i < processes.size(); i++)
+    {
+        process_access.insert(i, "Forbidden");
+    }
 }
 
 void acl_base::manage_process(QString process_name, QString access_level)

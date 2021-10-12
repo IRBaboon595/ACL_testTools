@@ -152,6 +152,7 @@ void MainWindow::on_singIn_pushButton_clicked()
         ui->singIn_pushButton->~QPushButton();
 
         ui->centralwidget->setLayout(main_layout);
+
     }
     else
     {

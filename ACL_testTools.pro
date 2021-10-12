@@ -14,12 +14,16 @@ SOURCES += \
     acl_base.cpp \
     acl_base_complex.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    test_acl_base.cpp \
+    test_acl_gui.cpp
 
 HEADERS += \
     acl_base.h \
     acl_base_complex.h \
-    mainwindow.h
+    mainwindow.h \
+    test_acl_base.h \
+    test_acl_gui.h
 
 FORMS += \
     mainwindow.ui

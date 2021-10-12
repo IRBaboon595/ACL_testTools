@@ -18,8 +18,13 @@
 #include "acl_base_complex.h"
 #include <QDebug>
 #include <QList>
-#include <QtTest>
+#include <QTest>
 #include <QThread>
+#include "test_acl_base.h"
+#include "test_acl_gui.h"
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,6 +33,8 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+    friend class test_acl_gui;
 
 public:
     MainWindow(QWidget *parent = nullptr);
